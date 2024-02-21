@@ -1,30 +1,17 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { useEffect, useMemo, useState } from 'react';
+
 import { FormGroup } from '@/components/common/FormGroup';
 import { Select } from '@/components/common/Select';
-import { useAssetStore } from '@/store/editables/asset/useAssetStore';
-import { Agent, Asset } from '@/types/editables/assetTypes';
-import { useEffect, useMemo, useState } from 'react';
 import { CodeInput } from './CodeInput';
 import { HelperLabel } from './HelperLabel';
 import { ErrorObject, TextInput } from './TextInput';
 import { MarkdownSupported } from '../MarkdownSupported';
-import ImageUploader from '@/components/common/ImageUploader';
+import { useAssetStore } from '@/store/editables/asset/useAssetStore';
 import { useAPIStore } from '@/store/useAPIStore';
-
-const executionModes = [
-  {
-    value: 'aiconsole.core.chat.execution_modes.normal:execution_mode',
-    label: 'Normal - conversational agent',
-  },
-  {
-    value: 'aiconsole.core.chat.execution_modes.interpreter:execution_mode',
-    label: 'Interpreter - code running agent',
-  },
-  {
-    value: 'custom',
-    label: 'Custom - (eg. custom.custom:custom_mode)',
-  },
-];
+import ImageUploader from '@/components/common/ImageUploader';
+import { EXECUTION_MODES, getExecutionMode } from '@/utils/editables/getExecutionMode';
+import { Agent, Asset } from '@/types/editables/assetTypes';
 
 interface AgentFormProps {
   agent: Agent;
@@ -48,8 +35,8 @@ export const AgentForm = ({
   setIsAvatarOverwritten,
   onRevert,
 }: AgentFormProps) => {
-  const [executionMode, setExecutionMode] = useState('');
-  const [customExecutionMode, setCustomExecutionMode] = useState('');
+  const [executionMode, setExecutionMode] = useState<string>(() => getExecutionMode(agent));
+  const [customExecutionMode, setCustomExecutionMode] = useState<string>(agent.execution_mode);
   const [avatarUrl, setAvatarUrl] = useState<string>('');
   const setSelectedAsset = useAssetStore((state) => state.setSelectedAsset);
   const handleUsageChange = (value: string) => setSelectedAsset({ ...agent, usage: value });
@@ -128,9 +115,10 @@ export const AgentForm = ({
               hidden={!isCustomMode}
               labelChildren={
                 <Select
-                  options={executionModes}
+                  options={EXECUTION_MODES}
                   placeholder="Choose execution mode"
                   onChange={handleSetExecutionMode}
+                  initialValue={executionMode}
                 />
               }
             />
