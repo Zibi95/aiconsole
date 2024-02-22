@@ -35,7 +35,6 @@ export const AgentForm = ({
   setIsAvatarOverwritten,
   onRevert,
 }: AgentFormProps) => {
-  const [customExecutionMode, setCustomExecutionMode] = useState<string>(agent.execution_mode);
   const [avatarUrl, setAvatarUrl] = useState<string>('');
   const setSelectedAsset = useAssetStore((state) => state.setSelectedAsset);
   const handleUsageChange = (value: string) => setSelectedAsset({ ...agent, usage: value });
@@ -47,20 +46,8 @@ export const AgentForm = ({
 
   const handleSetExecutionMode = (value: string) => {
     setErrors?.((prev) => ({ ...prev, executionMode: '' }));
-    setExecutionModeState(value);
-    setCustomExecutionMode('');
+    setExecutionModeState(value === 'custom' ? '' : value);
   };
-
-  const handleCustomExecutionModeChange = (value: string) => {
-    setCustomExecutionMode(value);
-    setExecutionModeState(value);
-  };
-
-  useEffect(() => {
-    if (agent.execution_mode !== 'custom') {
-      setCustomExecutionMode(agent.execution_mode);
-    }
-  }, [agent.execution_mode, setCustomExecutionMode]);
 
   const setAsset = (value: string) =>
     setSelectedAsset({
@@ -111,8 +98,8 @@ export const AgentForm = ({
               placeholder="Write text here"
               setErrors={setErrors}
               errors={errors}
-              value={customExecutionMode}
-              onChange={handleCustomExecutionModeChange}
+              value={agent.execution_mode}
+              onChange={setExecutionModeState}
               className="mb-[20px] leading-relaxed"
               helperText="a Python module governing how the agent behaves."
               hidden={!isCustomMode}
