@@ -35,7 +35,6 @@ export const AgentForm = ({
   setIsAvatarOverwritten,
   onRevert,
 }: AgentFormProps) => {
-  const [executionMode, setExecutionMode] = useState<string>(() => getExecutionMode(agent));
   const [customExecutionMode, setCustomExecutionMode] = useState<string>(agent.execution_mode);
   const [avatarUrl, setAvatarUrl] = useState<string>('');
   const setSelectedAsset = useAssetStore((state) => state.setSelectedAsset);
@@ -43,21 +42,25 @@ export const AgentForm = ({
   const setExecutionModeState = (value: string) => setSelectedAsset({ ...agent, execution_mode: value } as Asset);
   const getBaseURL = useAPIStore((state) => state.getBaseURL);
 
-  const isCustomMode = useMemo(() => executionMode === 'custom', [executionMode]);
+  const executionMode = useMemo(() => getExecutionMode(agent.execution_mode), [agent.execution_mode]);
+  const isCustomMode = executionMode === 'custom';
 
   const handleSetExecutionMode = (value: string) => {
-    setExecutionMode(value);
-    if (!isCustomMode) {
-      setCustomExecutionMode('');
-      setErrors?.((prev) => ({ ...prev, executionMode: '' }));
-      setExecutionModeState(value);
-    }
+    setErrors?.((prev) => ({ ...prev, executionMode: '' }));
+    setExecutionModeState(value);
+    setCustomExecutionMode('');
   };
 
   const handleCustomExecutionModeChange = (value: string) => {
     setCustomExecutionMode(value);
     setExecutionModeState(value);
   };
+
+  useEffect(() => {
+    if (agent.execution_mode !== 'custom') {
+      setCustomExecutionMode(agent.execution_mode);
+    }
+  }, [agent.execution_mode, setCustomExecutionMode]);
 
   const setAsset = (value: string) =>
     setSelectedAsset({
@@ -115,6 +118,7 @@ export const AgentForm = ({
               hidden={!isCustomMode}
               labelChildren={
                 <Select
+                  key={executionMode}
                   options={EXECUTION_MODES}
                   placeholder="Choose execution mode"
                   onChange={handleSetExecutionMode}

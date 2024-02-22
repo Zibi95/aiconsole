@@ -1,5 +1,3 @@
-import { Agent } from '@/types/editables/assetTypes';
-
 export const EXECUTION_MODES = [
   {
     value: 'aiconsole.core.chat.execution_modes.normal:execution_mode',
@@ -15,7 +13,7 @@ export const EXECUTION_MODES = [
   },
 ] as const;
 
-export const getExecutionMode = (agent: Agent): string => {
-  const executionMode = EXECUTION_MODES.find((mode) => mode.value === agent.execution_mode);
+export const getExecutionMode = (agentExecutionMode: string): string => {
+  const executionMode = EXECUTION_MODES.find((mode) => mode.value === agentExecutionMode);
   return executionMode?.value ?? 'custom';
 };
